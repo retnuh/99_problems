@@ -1,4 +1,4 @@
-open Core
+open Core_kernel
 
 let p21_insert_at item k = 
   let rec aux c acc = function 

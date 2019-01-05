@@ -1,4 +1,4 @@
-open Core
+open Core_kernel
 open Sexplib.Std
 
 let p9_pack l =

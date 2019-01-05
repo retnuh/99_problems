@@ -3,4 +3,4 @@
   (name lib)
   (inline_tests)
   (preprocess (pps ppx_inline_test ppx_expect ppx_sexp_conv))
-  (libraries core sexplib zarith bignum))
+  (libraries core_kernel sexplib zarith bignum))

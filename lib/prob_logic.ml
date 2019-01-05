@@ -1,4 +1,4 @@
-open Core
+open Core_kernel
 (* exception BadVariable of string *)
 
 type bool_expr =
