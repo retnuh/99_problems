@@ -110,3 +110,56 @@ let p49_solution_gray n =
   gray_next_level 1 ["0"; "1"];;
 
 let%test _ = p49_gray 4 = p49_solution_gray 4
+
+
+type p50_huffman_tree = 
+  | Node of { freq: int; left: p50_huffman_tree; right: p50_huffman_tree }
+  | Leaf of { freq: int; char: string } [@@deriving sexp]
+
+let p50_ht_freq = function
+  | Node {freq; _} -> freq
+  | Leaf {freq; _} -> freq 
+
+let p50_ht_compare a b = Int.compare (p50_ht_freq a) (p50_ht_freq b)
+
+let p50_ht_merge a b = let fa, fb = (p50_ht_freq a), (p50_ht_freq b) in
+  let node = 
+    if fa < fb then Node {freq = fa+fb; left = a; right = b}
+    else Node {freq = fa+fb; left = b; right = a}
+  in 
+  (* [a; b; node] |> List.sexp_of_t sexp_of_p50_huffman_tree |> Sexp.to_string |> print_endline; *)
+  node
+
+let p50_huffman freq_list =
+  let rec to_tree heap = match Fheap.length heap with 
+    | 0 -> failwith "too far!"
+    | 1 -> Fheap.top_exn heap
+    | _ -> 
+      let a, heap' = Fheap.pop_exn heap in 
+      let b, heap'' = Fheap.pop_exn heap' in 
+      to_tree @@ Fheap.add heap'' @@ p50_ht_merge a b 
+  in let rec encode acc current_code = function
+      | Leaf { char; _} -> (char, current_code) :: acc
+      | Node { left; right; _} -> 
+        let acc' = encode acc (current_code^"1") right in
+        encode acc' (current_code^"0") left
+  in 
+  List.map ~f:(fun (char, freq) -> Leaf {freq; char} ) freq_list 
+  |> List.fold ~init:(Fheap.create ~cmp:p50_ht_compare) ~f:Fheap.add 
+  |> to_tree |> encode [] "" 
+
+let p50_fs = [ ("a", 45); ("b", 13); ("c", 12); ("d", 16);
+               ("e", 9); ("f", 5) ];;
+
+let%test _ = 
+  let ans = p50_huffman p50_fs in 
+  List.iter ans ~f:(fun x ->
+      [%sexp_of: string * string ] x
+      |> Sexp.to_string
+      |> print_endline);
+  ans = [("a", "0"); ("c", "100"); ("b", "101"); ("f", "1100"); ("e", "1101");
+         ("d", "111")]
+
+let%test _ = p50_huffman ["a", 10;  "b", 15;  "c", 30;  "d", 16;  "e", 29] = 
+             [("d", "00"); ("a", "010"); ("b", "011"); ("e", "10"); ("c", "11")]
+
