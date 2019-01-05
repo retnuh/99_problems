@@ -122,11 +122,9 @@ let p50_ht_freq = function
 
 let p50_ht_compare a b = Int.compare (p50_ht_freq a) (p50_ht_freq b)
 
+(* Actually mostly unnecessary, nodes come out of heap in order! *)
 let p50_ht_merge a b = let fa, fb = (p50_ht_freq a), (p50_ht_freq b) in
-  let node = 
-    if fa < fb then Node {freq = fa+fb; left = a; right = b}
-    else Node {freq = fa+fb; left = b; right = a}
-  in 
+  let node = Node {freq = fa+fb; left = a; right = b} in 
   (* [a; b; node] |> List.sexp_of_t sexp_of_p50_huffman_tree |> Sexp.to_string |> print_endline; *)
   node
 
